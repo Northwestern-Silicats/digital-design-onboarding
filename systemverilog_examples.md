@@ -342,3 +342,65 @@ endfunction
 // Call the function anywhere a normal expression can be used.
 assign largest_o = larger_value(first_i, second_i);
 ```
+
+### AXI Stream Interface
+An AXI stream transfers one data word on a rising clock edge when both `tvalid` and `tready` are high. The source controls `tvalid`, `tdata`, and `tlast`, while the destination controls `tready`. If the source asserts `tvalid` while `tready` is low, it must keep the data and control signals unchanged until the transfer happens.
+
+This simplified interface includes the most common AXI stream signals. Modports describe which signals each side of the connection may drive.
+
+```systemverilog
+interface axi_stream_if #(
+    parameter int DATA_WIDTH = 32
+)(
+    input logic clk,
+    input logic reset
+);
+
+logic                  tvalid; // The source is presenting valid data
+logic                  tready; // The destination is ready to accept data
+logic [DATA_WIDTH-1:0] tdata;  // The data being transferred
+logic                  tlast;  // This word is the last one in a packet
+
+modport master (
+    input  clk,
+    input  reset,
+    input  tready,
+    output tvalid,
+    output tdata,
+    output tlast
+);
+
+modport slave (
+    input  clk,
+    input  reset,
+    input  tvalid,
+    input  tdata,
+    input  tlast,
+    output tready
+);
+
+endinterface : axi_stream_if
+
+// This module adds one to each word while passing the AXI stream handshake
+// and packet boundary signal through without adding a register stage.
+module axi_stream_add1 (
+    axi_stream_if.slave  input_stream,
+    axi_stream_if.master output_stream
+);
+
+assign input_stream.tready  = output_stream.tready;
+assign output_stream.tvalid = input_stream.tvalid;
+assign output_stream.tdata  = input_stream.tdata + 1'b1;
+assign output_stream.tlast  = input_stream.tlast;
+
+endmodule : axi_stream_add1
+
+// Create two interface instances and connect them to the module.
+axi_stream_if #(.DATA_WIDTH(32)) input_stream  (.clk(clk), .reset(reset));
+axi_stream_if #(.DATA_WIDTH(32)) output_stream (.clk(clk), .reset(reset));
+
+axi_stream_add1 add1_instance (
+    .input_stream  (input_stream),
+    .output_stream (output_stream)
+);
+```
