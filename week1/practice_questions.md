@@ -1,8 +1,5 @@
 # Fun Practice Questions
 
-These practice questions are based on public LogiCode problem topics, but the prompts here are rewritten for NU Silicats onboarding. Do not copy/paste LogiCode's full problem statements into this repo.
-
-LogiCode catalog: https://logi-code.com/problems/
 
 ## How To Use This File
 
