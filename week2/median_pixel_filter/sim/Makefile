@@ -1,5 +1,5 @@
 SIM_BUILD = median_filter_tb.vvp
-SOURCES   = ../src/pixel_pkg.sv ../src/median_filter.sv ../tb/median_filter_tb.sv
+SOURCES   = ../src/pixel_pkg.sv ../src/median_filter.sv ../src/median_kernel_calc.sv ../tb/median_filter_tb.sv
 
 .PHONY: run clean
 
